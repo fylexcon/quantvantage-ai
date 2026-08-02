@@ -1,0 +1,1 @@
+# Domain model placeholders only; no schemas are defined yet.

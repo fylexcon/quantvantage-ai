@@ -1,18 +1,25 @@
 # -----------------------
-# Next.js & Node (Frontend)
+# Node, npm & Next.js
 # -----------------------
 node_modules/
 .pnp
 .pnp.js
+.pnp.cjs
+.pnp.loader.mjs
 .next/
 out/
 build/
+dist/
+.turbo/
+.vercel/
+.swc/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # -----------------------
-# Python & FastAPI (Backend)
+# Python & FastAPI
 # -----------------------
 __pycache__/
 *.py[cod]
@@ -20,8 +27,16 @@ __pycache__/
 .venv/
 venv/
 env/
+ENV/
+.python-version
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
 .coverage
+coverage.xml
+htmlcov/
+*.egg-info/
 
 # -----------------------
 # PyTorch & Machine Learning
@@ -30,6 +45,7 @@ env/
 *.pt
 *.ckpt
 *.weights
+*.safetensors
 /data/
 /models/
 
@@ -37,14 +53,14 @@ env/
 # Secrets & Environment Vars
 # -----------------------
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!apps/**/.env.example
 
 # -----------------------
 # OS & Editor
 # -----------------------
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
