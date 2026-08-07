@@ -1,0 +1,6 @@
+# ML Artifacts & Generated Files
+apps/api/ml/weights/*
+!apps/api/ml/weights/.gitkeep
+apps/api/ml/results/*.png
+apps/api/*.png
+apps/api/*.pth
