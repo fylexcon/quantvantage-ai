@@ -162,7 +162,7 @@ class StockDataLoader:
         )
 
     def add_technical_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Injects momentum and trend indicators into the raw price data."""
+        """Injects momentum, trend, and volatility indicators into the raw price data."""
 
         # 1. RSI (Relative Strength Index) - 14 Day Window
         delta = df['Close'].diff()
@@ -180,8 +180,33 @@ class StockDataLoader:
         # MACD Signal Line (9-day EMA of the MACD)
         df['MACD_Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
 
-        # 3. Clean up the NaN values
-        # (Rolling 14-day windows create 14 empty rows at the very beginning of the dataset)
+        # ---------------------------------------------------------
+        # NEW: VOLATILITY INDICATORS (Bollinger Bands & ATR)
+        # ---------------------------------------------------------
+
+        # 3. Bollinger Bands (20-day SMA & 2 Standard Deviations)
+        df['BB_Middle'] = df['Close'].rolling(window=20).mean()
+        bb_std = df['Close'].rolling(window=20).std()
+        df['BB_Upper'] = df['BB_Middle'] + (bb_std * 2)
+        df['BB_Lower'] = df['BB_Middle'] - (bb_std * 2)
+
+        # Optional but highly recommended: Bollinger Bandwidth
+        # This gives the model a single number to measure how "squeezed" the price is
+        df['BB_Width'] = (df['BB_Upper'] - df['BB_Lower']) / df['BB_Middle']
+
+        # 4. ATR (Average True Range) - 14-day
+        high_low = df['High'] - df['Low']
+        high_close = (df['High'] - df['Close'].shift()).abs()
+        low_close = (df['Low'] - df['Close'].shift()).abs()
+
+        # True Range is the maximum of the three values above
+        ranges = pd.concat([high_low, high_close, low_close], axis=1)
+        true_range = ranges.max(axis=1)
+        df['ATR'] = true_range.rolling(window=14).mean()
+
+        # ---------------------------------------------------------
+
+        # Clean up the NaN values created by rolling windows
         df.fillna(0, inplace=True)
 
         return df
@@ -209,6 +234,7 @@ class StockDataLoader:
 
         # Step 2: Add Technical Indicators to the raw data
         history_with_indicators = self.add_technical_indicators(history)
+        self.feature_columns = tuple(history_with_indicators.columns)
 
         # Step 3: Fit the scaler and transform the data
         scaled_values, scaler = self.fit_transform(history_with_indicators, scaler_path=scaler_path)
@@ -256,12 +282,14 @@ class StockDataLoader:
     ) -> tuple[torch.Tensor, MinMaxScaler]:
         scaler = self.load_scaler(scaler_path)
         history = self.fetch_history(ticker, period=period, interval=interval)
-        if len(history) < lookback_days:
+        history_with_indicators = self.add_technical_indicators(history)
+        self.feature_columns = tuple(history_with_indicators.columns)
+        if len(history_with_indicators) < lookback_days:
             raise ValueError(
-                f"Need at least {lookback_days} usable rows for inference, got {len(history)}."
+                f"Need at least {lookback_days} usable rows for inference, got {len(history_with_indicators)}."
             )
 
-        latest_values = history.tail(lookback_days)
+        latest_values = history_with_indicators.tail(lookback_days)
         scaled_latest = self.transform(latest_values, scaler)
         return torch.from_numpy(scaled_latest).unsqueeze(0), scaler
 
