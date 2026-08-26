@@ -100,3 +100,55 @@ class PredictionRead(PredictionBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# Sentiment History
+# ---------------------------------------------------------------------------
+
+
+class SentimentCreate(BaseModel):
+    """Inbound payload shape from n8n automation pipeline."""
+
+    source: str = Field(min_length=1, max_length=255)
+    ticker: str = Field(min_length=1, max_length=16, pattern=r"^[A-Z0-9.-]+$")
+    analysis: dict[str, Any]
+    timestamp: str = Field(description="ISO-8601 timestamp string from n8n")
+    tenant_id: UUID | None = None
+    headline_hash: str | None = Field(
+        default=None,
+        max_length=64,
+        description="SHA-256 hash of the article headline for deduplication",
+    )
+
+    @field_validator("ticker", mode="before")
+    @classmethod
+    def normalize_ticker(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return value.strip().upper()
+        return value
+
+
+class SentimentRead(BaseModel):
+    """Response model for sentiment history rows."""
+
+    id: UUID
+    tenant_id: UUID | None
+    ticker: str
+    source: str
+    analysis: dict[str, Any]
+    headline_hash: str | None
+    raw_timestamp: datetime
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SentimentSummary(BaseModel):
+    """Aggregated sentiment snapshot for a ticker (24-hour window)."""
+
+    ticker: str
+    total_articles: int
+    avg_score_24h: float | None
+    dominant_sentiment_24h: str | None
+    last_updated: datetime | None
