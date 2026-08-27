@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers.sentiment import router as sentiment_router
+from routers.predict import router as predict_router
 
 app = FastAPI(title="QuantVantage API")
 
@@ -20,6 +21,7 @@ app.add_middleware(
 # Router Registration
 # ---------------------------------------------------------------------------
 app.include_router(sentiment_router)
+app.include_router(predict_router)
 
 
 @app.get("/")

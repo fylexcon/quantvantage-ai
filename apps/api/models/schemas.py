@@ -103,6 +103,35 @@ class PredictionRead(PredictionBase):
 
 
 # ---------------------------------------------------------------------------
+# Prediction API (PyTorch Inference)
+# ---------------------------------------------------------------------------
+
+
+class PredictionRequest(BaseModel):
+    """Inbound payload for the prediction endpoint."""
+
+    ticker: str = Field(min_length=1, max_length=16, pattern=r"^[A-Za-z0-9.-]+$")
+    days_ahead: int = Field(default=7, ge=1, le=30)
+
+    @field_validator("ticker", mode="before")
+    @classmethod
+    def normalize_ticker(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return value.strip().upper()
+        return value
+
+
+class PredictionResponse(BaseModel):
+    """Outbound payload returned by the prediction endpoint."""
+
+    ticker: str
+    current_price: float
+    forecasted_prices: list[float]
+    confidence_intervals: dict[str, list[float]]
+    model_version: str
+
+
+# ---------------------------------------------------------------------------
 # Sentiment History
 # ---------------------------------------------------------------------------
 
