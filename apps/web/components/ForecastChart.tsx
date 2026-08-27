@@ -47,11 +47,21 @@ function ChartSkeleton({ showColdStart }: { showColdStart: boolean }) {
   );
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: {
+    dataKey?: string | number;
+    value?: number | number[] | string;
+    [key: string]: unknown;
+  }[];
+  label?: string;
+}
+
 /** Custom tooltip */
-function ChartTooltip({ active, payload, label }: any) {
+function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
-  const p = payload.find((e: any) => e.dataKey === "price");
-  const b1 = payload.find((e: any) => e.dataKey === "band_1σ");
+  const p = payload.find((e) => e.dataKey === "price");
+  const b1 = payload.find((e) => e.dataKey === "band_1σ");
   return (
     <div className="rounded-xl border border-white/[0.08] bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur-sm">
       <p className="mb-1 text-xs font-medium text-slate-400">{label}</p>
