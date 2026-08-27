@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "QuantVantage AI — Financial Intelligence Dashboard",
   description:
     "Real-time AI-powered sentiment analysis and PyTorch price forecasting for equities and crypto.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
 };
 
 export default function RootLayout({

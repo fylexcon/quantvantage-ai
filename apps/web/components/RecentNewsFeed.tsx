@@ -10,9 +10,9 @@ interface RecentNewsFeedProps {
 }
 
 const SENTIMENT_BADGE: Record<string, { color: string; bg: string }> = {
-  Bullish: { color: "text-emerald-400", bg: "bg-emerald-500/15" },
-  Bearish: { color: "text-red-400", bg: "bg-red-500/15" },
-  Neutral: { color: "text-amber-400", bg: "bg-amber-500/15" },
+  Bullish: { color: "text-emerald-300 font-bold", bg: "bg-emerald-500/20" },
+  Bearish: { color: "text-red-300 font-bold", bg: "bg-red-500/20" },
+  Neutral: { color: "text-amber-300 font-bold", bg: "bg-amber-500/20" },
 };
 
 function getBadgeStyle(sentiment: string | undefined) {

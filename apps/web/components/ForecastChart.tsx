@@ -67,13 +67,12 @@ function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
       <p className="mb-1 text-xs font-medium text-slate-400">{label}</p>
       {p && (
         <p className="text-base font-bold text-white">
-          ${Number(p.value).toFixed(2)}
+          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(p.value))}
         </p>
       )}
       {b1 && Array.isArray(b1.value) && (
         <p className="mt-1 text-xs text-slate-500">
-          1σ: ${Number(b1.value[0]).toFixed(2)} – $
-          {Number(b1.value[1]).toFixed(2)}
+          1σ: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(b1.value[0]))} – {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(b1.value[1]))}
         </p>
       )}
     </div>
@@ -182,7 +181,7 @@ export default function ForecastChart({
                 tick={{ fill: "#64748b", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v: number) => `$${v}`}
+                tickFormatter={(v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v)}
                 domain={["auto", "auto"]}
                 width={65}
               />

@@ -21,21 +21,21 @@ const SENTIMENT_CONFIG: Record<
   { color: string; bg: string; ring: string; Icon: typeof TrendingUp }
 > = {
   Bullish: {
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/15",
-    ring: "ring-emerald-500/30",
+    color: "text-emerald-300",
+    bg: "bg-emerald-500/20",
+    ring: "ring-emerald-500/40",
     Icon: TrendingUp,
   },
   Bearish: {
-    color: "text-red-400",
-    bg: "bg-red-500/15",
-    ring: "ring-red-500/30",
+    color: "text-red-300",
+    bg: "bg-red-500/20",
+    ring: "ring-red-500/40",
     Icon: TrendingDown,
   },
   Neutral: {
-    color: "text-amber-400",
-    bg: "bg-amber-500/15",
-    ring: "ring-amber-500/30",
+    color: "text-amber-300",
+    bg: "bg-amber-500/20",
+    ring: "ring-amber-500/40",
     Icon: Minus,
   },
 };

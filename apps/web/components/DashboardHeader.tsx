@@ -39,11 +39,11 @@ export default function DashboardHeader({
               key={t}
               onClick={() => onTickerChange(t)}
               className={`
-                rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200
+                rounded-lg px-4 py-3 sm:py-2 text-sm font-medium transition-all duration-300 ease-in-out
                 ${
                   isActive
-                    ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-lg shadow-emerald-500/10"
-                    : "bg-white/[0.04] text-slate-400 ring-1 ring-white/[0.06] hover:bg-white/[0.08] hover:text-slate-200"
+                    ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-400 ring-1 ring-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+                    : "bg-white/[0.04] text-slate-400 ring-1 ring-white/[0.06] hover:bg-white/[0.08] hover:text-slate-200 hover:shadow-[0_0_10px_rgba(255,255,255,0.05)]"
                 }
               `}
             >
