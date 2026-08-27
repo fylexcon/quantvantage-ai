@@ -1,10 +1,25 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from database import get_supabase_service_client
+from ml.sentiment_model import load_sentiment_model
+from ml.data_loader import DEFAULT_WEIGHTS_DIR
 from routers.sentiment import router as sentiment_router
 from routers.predict import router as predict_router
 
-app = FastAPI(title="QuantVantage API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize the Supabase client singleton
+    get_supabase_service_client()
+    
+    # Load the sentiment model globally
+    model_path = DEFAULT_WEIGHTS_DIR / "sentiment_model.pth"
+    app.state.sentiment_model = load_sentiment_model(model_path)
+    
+    yield
+
+app = FastAPI(title="QuantVantage API", lifespan=lifespan)
 
 # ---------------------------------------------------------------------------
 # CORS Middleware — allow Next.js (localhost:3000) and future mobile clients
