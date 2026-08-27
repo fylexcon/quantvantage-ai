@@ -43,6 +43,7 @@ htmlcov/
 # -----------------------
 *.pth
 !apps/api/ml/weights/*.pth
+!apps/api/ml/weights/*.pkl
 *.pt
 *.ckpt
 *.weights
