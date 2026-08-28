@@ -6,16 +6,39 @@ from datetime import datetime, timedelta, timezone
 from typing import List
 import logging
 import asyncio
+import torch
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/sentiment", tags=["Sentiment"])
 
-@router.post("", response_model=SentimentRead, status_code=201)
-async def create_sentiment(payload: SentimentCreate):
+def _run_inference(model, features: list[float]) -> float:
+    """Run model inference with no_grad in eval mode."""
+    model.eval()
+    with torch.no_grad():
+        x = torch.tensor([features], dtype=torch.float32)
+        device = next(model.parameters()).device
+        x = x.to(device)
+        pred = model(x)
+        return float(pred.item())
+
+@router.post("", response_model=SentimentResponse, status_code=201)
+async def create_sentiment(payload: SentimentCreate, request: Request):
     supabase = get_supabase_service_client()
-    row = payload.model_dump()
+    row = payload.model_dump(exclude_none=True)
     
+    # Extract features for prediction: score, impact_weight (default 1.0), article_count
+    # You can customize impact_weight extraction if added to payload later
+    features = [payload.score, 1.0, float(payload.article_count)]
+    
+    model = request.app.state.sentiment_model
+    try:
+        prediction = await asyncio.to_thread(_run_inference, model, features)
+        row["model_prediction"] = prediction
+    except Exception as exc:
+        logger.error(f"Sentiment inference failed: {exc}")
+        row["model_prediction"] = None
+
     try:
         # Upsert: Handles duplicate dedup_hash gracefully
         result = (
