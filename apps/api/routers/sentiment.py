@@ -4,6 +4,7 @@ from schemas import SentimentCreate, SentimentRead, SentimentResponse, Sentiment
 from utils.notifications import send_sentiment_alert
 from datetime import datetime, timedelta, timezone
 from typing import List
+from collections import Counter
 import logging
 import asyncio
 import torch

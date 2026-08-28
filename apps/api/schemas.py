@@ -5,10 +5,10 @@ from pydantic import BaseModel, ConfigDict
 
 class SentimentCreate(BaseModel):
     ticker: str
-    score: float
-    sentiment_label: str
-    article_count: int
-    dedup_hash: str
+    score: Optional[float] = None
+    sentiment_label: Optional[str] = None
+    article_count: Optional[int] = None
+    dedup_hash: Optional[str] = None
     
     # New fields for flexibility and batch processing compatibility
     model_prediction: Optional[float] = None
@@ -28,6 +28,7 @@ class SentimentResponse(SentimentRead):
 
 class SentimentSummary(BaseModel):
     ticker: str
-    average_score: float
-    dominant_sentiment: str
     total_articles: int
+    avg_score_24h: Optional[float] = None
+    dominant_sentiment_24h: Optional[str] = None
+    last_updated: Optional[datetime] = None
