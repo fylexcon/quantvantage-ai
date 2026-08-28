@@ -32,7 +32,12 @@ export function useSentimentData(ticker: string) {
         }
 
         if (mounted) {
-          setData(records as SentimentRecord[]);
+          const mappedRecords = records.map((r: any) => ({
+            ...r,
+            score: r.score ?? r.analysis?.score ?? 0,
+            sentiment_label: r.sentiment_label ?? r.analysis?.sentiment ?? "neutral",
+          }));
+          setData(mappedRecords as SentimentRecord[]);
         }
       } catch (err) {
         if (mounted) {

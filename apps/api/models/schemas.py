@@ -167,10 +167,10 @@ class SentimentRead(BaseModel):
     source: str
     analysis: dict[str, Any]
     headline_hash: str | None
-    raw_timestamp: datetime
+    raw_timestamp: datetime = Field(alias="timestamp")
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class SentimentSummary(BaseModel):

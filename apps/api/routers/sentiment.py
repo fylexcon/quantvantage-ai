@@ -29,7 +29,9 @@ async def create_sentiment(payload: SentimentCreate, request: Request):
     
     # Extract features for prediction: score, impact_weight (default 1.0), article_count
     # You can customize impact_weight extraction if added to payload later
-    features = [payload.score, 1.0, float(payload.article_count)]
+    score = payload.analysis.get("score", 0.0)
+    article_count = payload.analysis.get("article_count", 1)
+    features = [score, 1.0, float(article_count)]
     
     model = request.app.state.sentiment_model
     try:
@@ -56,9 +58,9 @@ async def create_sentiment(payload: SentimentCreate, request: Request):
     # Fire Telegram alert in background — never blocks the response
     asyncio.create_task(send_sentiment_alert(
         ticker=payload.ticker,
-        sentiment=payload.sentiment_label,
-        score=payload.score,
-        summary=str(payload.analysis or ""),
+        sentiment=payload.analysis.get("sentiment", "neutral"),
+        score=payload.analysis.get("score", 0.0),
+        summary=str(payload.analysis.get("summary", "")),
     ))
 
     return result.data[0]
@@ -115,7 +117,8 @@ async def get_sentiment_summary(ticker: str):
         
     return SentimentSummary(
         ticker=ticker.upper(),
-        average_score=avg_score,
-        dominant_sentiment=dominant_sentiment,
-        total_articles=total_articles
+        avg_score_24h=avg_score,
+        dominant_sentiment_24h=dominant_sentiment,
+        total_articles=total_articles,
+        last_updated=datetime.now(timezone.utc)
     )
