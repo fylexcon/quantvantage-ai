@@ -12,7 +12,8 @@ The application is built on a highly decoupled, scalable microservices architect
 
 ### Automated News Ingestion (n8n Workflow)
 
-![n8n Workflow Architecture](./n8n-workflow.png)
+<img width="530" height="304" alt="image" src="https://github.com/user-attachments/assets/331fceff-0568-4605-ac1b-0cfc6c88dd2c" />
+
 
 The core of our real-time data ingestion is powered by a continuous **n8n automation pipeline**:
 1. **Triggers:** Initiated via a Schedule Trigger (e.g., hourly cron job) or manual execution.
