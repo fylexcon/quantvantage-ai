@@ -36,8 +36,8 @@ const CustomTooltip = ({
 }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-md">
-        <p className="mb-1 text-sm font-semibold text-slate-700">
+      <div className="rounded-xl border border-white/[0.08] bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur-sm">
+        <p className="mb-1 text-xs font-medium text-slate-400">
           {label ? new Date(label).toLocaleDateString() : ""}
         </p>
         {payload.map((entry, index) => (
@@ -60,7 +60,7 @@ export default function SentimentChart({ ticker }: SentimentChartProps) {
 
   if (loading) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="card-glass flex h-96 w-full flex-col items-center justify-center p-4">
         <p className="text-sm text-slate-500 animate-pulse">Loading sentiment data...</p>
       </div>
     );
@@ -68,7 +68,7 @@ export default function SentimentChart({ ticker }: SentimentChartProps) {
 
   if (error) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 p-4 text-red-600 shadow-sm">
+      <div className="flex h-96 w-full flex-col items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-400 shadow-sm">
         <p className="text-sm font-medium">Error loading data</p>
         <p className="text-xs">{error.message}</p>
       </div>
@@ -77,15 +77,15 @@ export default function SentimentChart({ ticker }: SentimentChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="card-glass flex h-96 w-full flex-col items-center justify-center p-4">
         <p className="text-sm text-slate-500">No sentiment data available for {ticker}.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-96 w-full rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-800">
+    <div className="card-glass flex h-96 w-full flex-col p-4">
+      <h3 className="mb-4 text-sm font-medium text-slate-400">
         AI Sentiment vs Model Prediction
       </h3>
       <div className="h-72 w-full">
@@ -99,19 +99,17 @@ export default function SentimentChart({ ticker }: SentimentChartProps) {
               bottom: 5,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis
               dataKey="created_at"
               tickFormatter={(val) => new Date(val).toLocaleDateString()}
-              stroke="#94a3b8"
-              fontSize={12}
+              tick={{ fill: "#64748b", fontSize: 12 }}
               tickMargin={10}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
             />
             <YAxis
-              stroke="#94a3b8"
-              fontSize={12}
+              tick={{ fill: "#64748b", fontSize: 12 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(val) => val.toFixed(1)}
