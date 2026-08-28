@@ -32,7 +32,7 @@ export function useSentimentData(ticker: string) {
         }
 
         if (mounted) {
-          const mappedRecords = records.map((r: any) => ({
+          const mappedRecords = records.map((r: Record<string, unknown> & { score?: number; sentiment_label?: string; analysis?: { score?: number; sentiment?: string } }) => ({
             ...r,
             score: r.score ?? r.analysis?.score ?? 0,
             sentiment_label: r.sentiment_label ?? r.analysis?.sentiment ?? "neutral",
