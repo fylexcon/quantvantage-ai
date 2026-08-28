@@ -24,7 +24,7 @@ interface CustomTooltipProps {
     name?: string;
     color?: string;
     dataKey?: string;
-    payload: any;
+    payload: unknown;
   }>;
   label?: string;
 }
