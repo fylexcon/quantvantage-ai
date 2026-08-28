@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from database import get_supabase_service_client
-from schemas import SentimentCreate, SentimentRead, SentimentSummary
+from schemas import SentimentCreate, SentimentRead, SentimentResponse, SentimentSummary
+from utils.notifications import send_sentiment_alert
 from datetime import datetime, timedelta, timezone
 from typing import List
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,15 @@ async def create_sentiment(payload: SentimentCreate):
         
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to insert data")
-        
+
+    # Fire Telegram alert in background — never blocks the response
+    asyncio.create_task(send_sentiment_alert(
+        ticker=payload.ticker,
+        sentiment=payload.sentiment_label,
+        score=payload.score,
+        summary=str(payload.analysis or ""),
+    ))
+
     return result.data[0]
 
 
