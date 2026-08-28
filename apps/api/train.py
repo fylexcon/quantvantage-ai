@@ -50,9 +50,15 @@ logger = logging.getLogger(__name__)
 # Training helpers
 # ---------------------------------------------------------------------------
 
-def _build_dataloader(ticker: str, batch_size: int) -> DataLoader:
+def _build_dataloader(
+    ticker: str,
+    batch_size: int,
+    limit: int = 10_000,
+) -> DataLoader:
     """Fetch historical sentiment rows for *ticker* and wrap in a DataLoader."""
-    records = fetch_historical_sentiment(limit=10_000)
+    records = fetch_historical_sentiment(limit=limit)
+    logger.info("Fetched %d total records from Supabase.", len(records))
+
     # Filter to the requested ticker if a 'ticker' field exists in the rows
     filtered = [r for r in records if r.get("ticker", "").upper() == ticker.upper()]
     if not filtered:
@@ -62,6 +68,10 @@ def _build_dataloader(ticker: str, batch_size: int) -> DataLoader:
             len(records),
         )
         filtered = records
+    else:
+        logger.info(
+            "Filtered to %d records for ticker '%s'.", len(filtered), ticker,
+        )
 
     dataset = SentimentHistoryDataset(filtered)
     logger.info("Dataset size: %d samples for ticker '%s'", len(dataset), ticker)
@@ -149,11 +159,24 @@ def main() -> None:
     # 3. Train
     losses = train(model, loader, epochs=NUM_EPOCHS, lr=LEARNING_RATE)
 
+    # -- Convergence summary --
+    if len(losses) >= 2:
+        delta = losses[-1] - losses[0]
+        logger.info(
+            "Loss moved from %.6f → %.6f (Δ %.6f) over %d epochs.",
+            losses[0], losses[-1], delta, len(losses),
+        )
+
     # 4. Save weights
     WEIGHTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), WEIGHTS_PATH)
-    logger.info("Model weights saved to %s", WEIGHTS_PATH)
+
+    saved_size = WEIGHTS_PATH.stat().st_size
+    logger.info(
+        "Model weights saved to %s (%d bytes)", WEIGHTS_PATH, saved_size,
+    )
     logger.info("Final training loss: %.6f", losses[-1])
+    logger.info("=== Training complete ===")
 
 
 if __name__ == "__main__":
