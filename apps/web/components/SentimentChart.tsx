@@ -38,7 +38,7 @@ const CustomTooltip = ({
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-md">
         <p className="mb-1 text-sm font-semibold text-slate-700">
-          {new Date(label).toLocaleDateString()}
+          {label ? new Date(label).toLocaleDateString() : ""}
         </p>
         {payload.map((entry, index) => (
           <p
