@@ -104,16 +104,31 @@ async def get_sentiment_summary(ticker: str):
             total_articles=0
         )
         
-    total_articles = sum(r.get("article_count", 0) for r in rows)
+    valid_scores = []
+    total_articles = 0
+    sentiment_list = []
     
-    avg_score = sum(r.get("score", 0.0) for r in rows) / len(rows)
-    
-    if avg_score > 0.15:
-        dominant_sentiment = "bullish"
-    elif avg_score < -0.15:
-        dominant_sentiment = "bearish"
-    else:
-        dominant_sentiment = "neutral"
+    for r in rows:
+        analysis = r.get("analysis") or {}
+        
+        score = r.get("score")
+        if score is None:
+            score = analysis.get("score", 0.0)
+        valid_scores.append(float(score))
+        
+        ac = r.get("article_count")
+        if ac is None:
+            ac = analysis.get("article_count", 1)
+        total_articles += int(ac)
+        
+        sentiment = r.get("sentiment_label")
+        if not sentiment:
+            sentiment = analysis.get("sentiment", "neutral")
+        sentiment_list.append(sentiment.capitalize())
+
+    avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else 0.0
+    sentiment_counts = Counter(sentiment_list)
+    dominant_sentiment = sentiment_counts.most_common(1)[0][0] if sentiment_counts else "Neutral"
         
     return SentimentSummary(
         ticker=ticker.upper(),
