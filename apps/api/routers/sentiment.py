@@ -90,7 +90,7 @@ async def get_sentiment_summary(ticker: str):
         supabase.table("sentiment_history")
         .select("*")
         .eq("ticker", ticker.upper())
-        .gte("created_at", cutoff)
+        .limit(20)
         .execute()
     )
     
