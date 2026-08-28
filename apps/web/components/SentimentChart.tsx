@@ -10,7 +10,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  TooltipProps,
 } from "recharts";
 import { useSentimentData } from "@/lib/useSentimentData";
 
@@ -18,11 +17,23 @@ interface SentimentChartProps {
   ticker: string;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name?: string;
+    color?: string;
+    dataKey?: string;
+    payload: any;
+  }>;
+  label?: string;
+}
+
 const CustomTooltip = ({
   active,
   payload,
   label,
-}: TooltipProps<number, string>) => {
+}: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-md">
