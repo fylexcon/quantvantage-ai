@@ -5,6 +5,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import SentimentCard from "@/components/SentimentCard";
 import ForecastChart from "@/components/ForecastChart";
 import RecentNewsFeed from "@/components/RecentNewsFeed";
+import SentimentChart from "@/components/SentimentChart";
 
 export default function Home() {
   const [ticker, setTicker] = useState("AAPL");
@@ -23,8 +24,9 @@ export default function Home() {
         </div>
 
         {/* Right column — Forecast chart */}
-        <div className="lg:col-span-2 animate-fade-in">
+        <div className="flex flex-col gap-6 lg:col-span-2 animate-fade-in">
           <ForecastChart ticker={ticker} daysAhead={14} />
+          <SentimentChart ticker={ticker} />
         </div>
       </div>
 
