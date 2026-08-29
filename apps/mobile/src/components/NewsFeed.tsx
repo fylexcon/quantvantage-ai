@@ -1,20 +1,44 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { useSentimentList } from '../../lib/api';
-import { ExternalLink } from 'lucide-react-native';
+import { useSentimentList, type SentimentRead } from '../../lib/api';
 
-export default function NewsFeed({ ticker }: { ticker: string }) {
-  const { data, isPending, error } = useSentimentList(ticker, 5);
+interface NewsFeedProps {
+  ticker: string;
+  limit?: number;
+}
 
-  const openUrl = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url);
-  };
+function getSentimentBadge(sentiment: string | undefined) {
+  if (!sentiment) return { color: 'text-gray-400', bg: 'bg-gray-500/15', dot: 'bg-amber-400' };
+  const s = sentiment.toLowerCase();
+  if (s === 'bullish') return { color: 'text-emerald-400', bg: 'bg-emerald-500/20', dot: 'bg-emerald-400' };
+  if (s === 'bearish') return { color: 'text-red-400', bg: 'bg-red-500/20', dot: 'bg-red-400' };
+  return { color: 'text-amber-400', bg: 'bg-amber-500/20', dot: 'bg-amber-400' };
+}
+
+function timeAgo(iso: string): string {
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  } catch {
+    return '';
+  }
+}
+
+export default function NewsFeed({ ticker, limit = 10 }: NewsFeedProps) {
+  const { data, isPending, error } = useSentimentList(ticker, limit);
 
   if (isPending) {
     return (
       <View className="items-center py-8">
         <ActivityIndicator color="#10b981" />
+        <Text className="text-gray-400 mt-2 text-sm">Loading news...</Text>
       </View>
     );
   }
@@ -22,38 +46,66 @@ export default function NewsFeed({ ticker }: { ticker: string }) {
   if (error || !data || data.length === 0) {
     return (
       <View className="py-8 items-center">
-        <Text className="text-gray-500">No recent news found.</Text>
+        <Text className="text-gray-500 text-sm">
+          No recent news found for {ticker}.
+        </Text>
       </View>
     );
   }
 
   return (
-    <View className="mb-8">
-      <Text className="text-white font-semibold mb-4 px-2">Recent News</Text>
-      {data.map((item: any, index: number) => {
-        let labelColor = 'text-gray-400';
-        if (item.sentiment === 'BULLISH') labelColor = 'text-emerald-400';
-        if (item.sentiment === 'BEARISH') labelColor = 'text-red-400';
+    <View>
+      {data.map((item: SentimentRead, index: number) => {
+        const sentiment = item.analysis?.sentiment;
+        const summary = item.analysis?.summary;
+        const score = item.analysis?.score;
+        const badge = getSentimentBadge(sentiment);
 
         return (
-          <TouchableOpacity
+          <View
             key={item.id || index}
-            onPress={() => openUrl(item.url)}
-            className="bg-card p-4 rounded-xl mb-3 border border-gray-800 flex-row items-center"
+            className="bg-card p-4 rounded-xl mb-3 border border-gray-800"
           >
-            <View className="flex-1 mr-3">
-              <Text className="text-white font-medium mb-2" numberOfLines={2}>
-                {item.headline}
-              </Text>
-              <View className="flex-row items-center space-x-3">
-                <Text className={`text-xs font-bold ${labelColor}`}>
-                  {item.sentiment}
+            {/* Sentiment dot + Summary */}
+            <View className="flex-row items-start">
+              <View className={`w-2 h-2 rounded-full mt-1.5 mr-3 ${badge.dot}`} />
+              <View className="flex-1">
+                <Text
+                  className="text-gray-200 text-sm leading-5 mb-2"
+                  numberOfLines={3}
+                >
+                  {summary || 'No summary available.'}
                 </Text>
-                <Text className="text-gray-500 text-xs">Score: {item.score.toFixed(2)}</Text>
+
+                {/* Meta row */}
+                <View className="flex-row flex-wrap items-center">
+                  {/* Sentiment badge */}
+                  <View className={`rounded-full px-2 py-0.5 mr-2 ${badge.bg}`}>
+                    <Text className={`text-xs font-bold ${badge.color}`}>
+                      {sentiment ?? 'Unknown'}
+                    </Text>
+                  </View>
+
+                  {/* Score */}
+                  {typeof score === 'number' && (
+                    <Text className="text-gray-500 text-xs mr-3">
+                      {score.toFixed(2)}
+                    </Text>
+                  )}
+
+                  {/* Source */}
+                  <Text className="text-gray-600 text-xs mr-3">
+                    {item.source}
+                  </Text>
+
+                  {/* Time */}
+                  <Text className="text-gray-600 text-xs">
+                    {timeAgo(item.created_at)}
+                  </Text>
+                </View>
               </View>
             </View>
-            <ExternalLink size={20} color="#6b7280" />
-          </TouchableOpacity>
+          </View>
         );
       })}
     </View>
